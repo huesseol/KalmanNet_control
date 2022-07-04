@@ -552,8 +552,8 @@ class Plot:
             f.savefig(self.pipeline.folderName + saveName)
 
 
-    def plot_lqr_and_mse_model_mismatch(self, MSE_KF, LQG_correct_kf, figSize=(25, 25), fontSize=32, 
-        lineWidth=2, title=None, saveName=None, ylim2=None, ylim3=None, color=['r-o','k-', 'b-', 'g-', 'y-']):
+    def plot_lqr_and_mse_model_mismatch(self, MSE_KF, LQG_correct_model,figSize=(25, 25), fontSize=32, 
+        lineWidth=2, title=None, saveName=None, ylim2=None, ylim3=None, color=['r-o','k-', 'b-', 'r-', 'g-']):
 
         # Figure
         f = plt.figure(figsize = figSize)
@@ -577,16 +577,13 @@ class Plot:
 
         # LQR loss when using a Kalman filter (i.e. LQG)
         y_plt4 = self.pipeline.LQG_cost * torch.ones_like(x_plt)
-        ax1.plot(x_plt, y_plt4, color[3], label=loop_legend[3], linewidth=lineWidth)
+        ax1.plot(x_plt, y_plt4, color[3], label='LQG - wrong model', linewidth=lineWidth)
 
-        # LQR loss when knowing the state
-        y_plt5 = self.pipeline.LQR_cost * torch.ones_like(x_plt)
-        ax1.plot(x_plt, y_plt5, color[4], label=loop_legend[4], linewidth=lineWidth)
+        # Correct model
+        y_plt5 = LQG_correct_model * torch.ones_like(x_plt)
+        ax1.plot(x_plt, y_plt5, color[4], label='LQG - correct model', linewidth=lineWidth)
 
-        # LQG loss when using the correct model in the KF
-        y_plt6 = LQG_correct_kf * torch.ones_like(x_plt)
-        ax1.plot(x_plt, y_plt6, label='KF with correct model', linewidth=lineWidth)
-
+        
         if ylim2:
             ax1.set_ylim(ylim2)
 
@@ -606,11 +603,11 @@ class Plot:
 
         # MSE Kalman filter
         y_plt3 = MSE_KF * torch.ones_like(x_plt)
-        ax2.plot(x_plt, y_plt3, color[3], label="KF - Test", linewidth=lineWidth)
+        ax2.plot(x_plt, y_plt3, 'g-', label="KF - correct model", linewidth=lineWidth)
 
         # Noise level
         y_plt4 = 10 * log10(self.pipeline.ssModel.r2) * torch.ones_like(x_plt)
-        ax2.plot(x_plt, y_plt4, color[4], label="Noise variance", linewidth=lineWidth)
+        ax2.plot(x_plt, y_plt4, 'y-', label="Noise variance", linewidth=lineWidth)
         
         if ylim3:
             ax2.set_ylim(ylim3)
@@ -643,7 +640,7 @@ class Plot:
         plt.plot(x_plt, y_plt3, color[2], label=Klegend[2], linewidth=lineWidth)
 
         y_plt4 = self.pipeline.MSE_test_dB_avg_kf * torch.ones_like(x_plt)
-        plt.plot(x_plt, y_plt4, color[3], label='KF - correct model', linewidth=lineWidth)
+        plt.plot(x_plt, y_plt4, color[3], label='KF - wrong model', linewidth=lineWidth)
 
         if MSE_KF_true_system is not None:
             y_plt5 = MSE_KF_true_system * torch.ones_like(x_plt)
